@@ -6,3 +6,5 @@ Projeto desenvolvido para realizar conversões de moedas em tempo real utilizand
 - IntelliJ IDEA
 - Biblioteca GSON
 - API Exchange Rate
+
+
