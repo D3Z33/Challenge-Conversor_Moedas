@@ -129,12 +129,21 @@ A automação e praticidade no processo de conversão tornam o fluxo de trabalho
 ---
 
 ## 🎥 Demonstração do Projeto
-####
-> ⚠️ **Atenção:**  
-> Clique no vídeo abaixo para assistir à demonstração.  
-> Você será redirecionado para o Imgur pois o GitHub não suporta vídeos diretamente.
-###
-[![Assista à demonstração no Imgur](https://i.imgur.com/sQ2zuc0.png)](https://imgur.com/sQ2zuc0)
+
+<div align="center">
+  <strong>⚠️ Atenção:</strong>  
+  Clique no vídeo abaixo para assistir à demonstração.  
+  <br>
+  Você será redirecionado para o Imgur pois o GitHub não suporta vídeos diretamente.
+</div>
+
+<br>
+
+<div align="center">
+  <a href="https://imgur.com/sQ2zuc0">
+    <img src="https://i.imgur.com/sQ2zuc0.png" alt="Assista à demonstração no Imgur">
+  </a>
+</div>
 
 ---
 
