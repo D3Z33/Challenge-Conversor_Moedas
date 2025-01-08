@@ -5,7 +5,9 @@ import br.com.alura.challenge.conversor.moedas.servico.Conversor;
 import br.com.alura.challenge.conversor.moedas.modelo.ExchangeRateResponse;
 import br.com.alura.challenge.conversor.moedas.utils.Logger;
 
+import java.text.NumberFormat;
 import java.util.InputMismatchException;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class Menu {
@@ -43,14 +45,15 @@ public class Menu {
                     // Realiza o cálculo
                     double valorConvertido = conversor.converter(valor, taxa);
 
-                    // Formatação e exibição
-                    String entrada = String.format("%.2f %s", valor, moedaBase);
-                    String resultado = String.format("%.2f %s", valorConvertido, moedaDestino);
+                    // Formatação do valor convertido
+                    String entradaFormatada = formatarMoeda(valor, moedaBase);
+                    String resultadoFormatado = formatarMoeda(valorConvertido, moedaDestino);
 
-                    System.out.printf("Resultado: %s equivale a %s%n", entrada, resultado);
+                    // Exibe o resultado com formatação de moeda
+                    System.out.printf("Resultado: %s equivale a %s%n", entradaFormatada, resultadoFormatado);
 
                     // Registra a conversão no log
-                    logger.registrar(entrada, resultado);
+                    logger.registrar(entradaFormatada, resultadoFormatado);
                 } else {
                     System.out.println("Erro: Moeda de destino inválida ou não suportada.");
                 }
@@ -99,5 +102,35 @@ public class Menu {
             }
         }
         return valor;
+    }
+
+    /**
+     * Formata um valor monetário de acordo com a moeda informada.
+     *
+     * @param valor Valor a ser formatado.
+     * @param moeda Código da moeda (ex: USD, BRL).
+     * @return Valor formatado como string.
+     */
+    private String formatarMoeda(double valor, String moeda) {
+        Locale locale = obterLocalePorMoeda(moeda);
+        NumberFormat formatoMoeda = NumberFormat.getCurrencyInstance(locale);
+        return formatoMoeda.format(valor);
+    }
+
+    /**
+     * Define o Locale (localização) com base no código da moeda.
+     *
+     * @param moeda Código da moeda (ex: USD, BRL).
+     * @return Locale correspondente à moeda.
+     */
+    private Locale obterLocalePorMoeda(String moeda) {
+        return switch (moeda) {
+            case "USD" -> Locale.US;
+            case "BRL" -> new Locale("pt", "BR");
+            case "EUR" -> Locale.FRANCE;
+            case "JPY" -> Locale.JAPAN;
+            case "GBP" -> Locale.UK;
+            default -> Locale.US;  // Padrão para USD se a moeda não for reconhecida
+        };
     }
 }
