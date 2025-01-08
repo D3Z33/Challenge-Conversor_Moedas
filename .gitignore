@@ -1,0 +1,6 @@
+# Ignorar pastas de build e configuração do IntelliJ IDEA
+.idea/
+out/
+target/
+*.iml
+*.class

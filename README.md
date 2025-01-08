@@ -26,28 +26,35 @@ Challenge-Conversor_Moedas
 ├── src
 │   └── main
 │       └── java
-│           └── br.com.alura.challenge.conversor.moedas
-│               ├── aplicacao
-│               │   └── Main.java
-│               │
-│               ├── demo
-│               │   └── demo.mp4
-│               │
-│               ├── modelo
-│               │   └── ExchangeRateResponse.java
-│               │
-│               ├── servico
-│               │   ├── ApiClient.java
-│               │   └── Conversor.java
-│               │
-│               ├── utils
-│               │   ├── Logger.java
-│               │   ├── TesteApiClient.java
-│               │   └── TesteGson.java
-│               │
-│               └── visao
-│                   └── Menu.java
+│           └── br
+│               └── com
+│                   └── alura
+│                       └── challenge
+│                           └── conversor
+│                               └── moedas
+│                                   ├── aplicacao
+│                                   │   ├── Main.java
+│                                   │   └── aplicacao.java
+│                                   │
+│                                   ├── demo
+│                                   │   └── demo.mp4
+│                                   │
+│                                   ├── modelo
+│                                   │   └── ExchangeRateResponse.java
+│                                   │
+│                                   ├── servico
+│                                   │   ├── ApiClient.java
+│                                   │   └── Conversor.java
+│                                   │
+│                                   ├── utils
+│                                   │   ├── Logger.java
+│                                   │   ├── TesteApiClient.java
+│                                   │   └── TesteGson.java
+│                                   │
+│                                   └── visao
+│                                       └── Menu.java
 │
+├── .gitignore
 ├── historico_conversoes.txt
 └── README.md
 ```
