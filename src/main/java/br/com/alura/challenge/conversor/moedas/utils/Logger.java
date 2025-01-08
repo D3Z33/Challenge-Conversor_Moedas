@@ -26,8 +26,15 @@ public class Logger {
             // Obtém a data e hora atuais e formata
             String dataHora = LocalDateTime.now().format(FORMATO_DATA);
 
+            // Substitui espaços não quebráveis por espaços normais
+            String entradaCorrigida = entrada.replace("\u00A0", " ");
+            String resultadoCorrigido = resultado.replace("\u00A0", " ");
+
             // Escreve no arquivo o registro da conversão
-            escritor.write(String.format("[%s] %s ➝ %s%n", dataHora, entrada, resultado));
+            escritor.write(String.format("[%s] %s ➝ %s%n", dataHora, entradaCorrigida, resultadoCorrigido));
+
+            // Exibe o mesmo registro no console
+            System.out.printf("[%s] %s ➝ %s%n", dataHora, entradaCorrigida, resultadoCorrigido);
 
         } catch (IOException e) {
             // Caso ocorra erro, exibe mensagem no console
