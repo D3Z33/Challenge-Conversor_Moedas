@@ -30,11 +30,14 @@ public class Logger {
             String entradaCorrigida = entrada.replace("\u00A0", " ");
             String resultadoCorrigido = resultado.replace("\u00A0", " ");
 
-            // Escreve no arquivo o registro da conversão
-            escritor.write(String.format("[%s] %s ➝ %s%n", dataHora, entradaCorrigida, resultadoCorrigido));
+            // Formatação para exibir no console e salvar no log em uma única linha
+            String registroFormatado = String.format("[%s] %s ➝ %s", dataHora, entradaCorrigida, resultadoCorrigido);
 
-            // Exibe o mesmo registro no console
-            System.out.printf("[%s] %s ➝ %s%n", dataHora, entradaCorrigida, resultadoCorrigido);
+            // Exibe o resultado diretamente no console
+            System.out.println("Resultado: " + registroFormatado);
+
+            // Escreve o registro no arquivo de log
+            escritor.write(registroFormatado + "\n");
 
         } catch (IOException e) {
             // Caso ocorra erro, exibe mensagem no console

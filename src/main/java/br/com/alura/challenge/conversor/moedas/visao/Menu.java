@@ -48,8 +48,6 @@ public class Menu {
                     String entradaFormatada = formatarMoeda(valor, moedaBase);
                     String resultadoFormatado = formatarMoeda(valorConvertido, moedaDestino);
 
-                    System.out.printf("Resultado: %s equivale a %s%n", entradaFormatada, resultadoFormatado);
-
                     // Registra a conversão no log
                     logger.registrar(entradaFormatada, resultadoFormatado);
                 } else {
