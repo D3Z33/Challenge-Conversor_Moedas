@@ -6,9 +6,7 @@ import br.com.alura.challenge.conversor.moedas.modelo.ExchangeRateResponse;
 import br.com.alura.challenge.conversor.moedas.utils.Logger;
 
 import java.text.NumberFormat;
-import java.util.InputMismatchException;
-import java.util.Locale;
-import java.util.Scanner;
+import java.util.*;
 
 public class Menu {
 
@@ -17,6 +15,9 @@ public class Menu {
     private final Logger logger = new Logger();
     private final Scanner scanner = new Scanner(System.in);
 
+    // Lista de moedas suportadas
+    private final Set<String> moedasSuportadas = new HashSet<>(Arrays.asList("USD", "BRL", "EUR", "JPY", "GBP"));
+
     public void exibirMenu() {
         boolean continuar = true;
 
@@ -24,13 +25,11 @@ public class Menu {
             try {
                 System.out.println("\nBem-vindo ao Conversor de Moedas!");
 
-                // Validação da moeda base
-                System.out.print("Digite a moeda base (ex: USD, EUR, BRL): ");
-                String moedaBase = scanner.next().toUpperCase();
+                // Solicita e valida a moeda base
+                String moedaBase = obterMoedaValida("Digite a moeda base (ex: USD, EUR, BRL): ");
 
-                // Validação da moeda de destino
-                System.out.print("Digite a moeda para conversão (ex: BRL, EUR, JPY): ");
-                String moedaDestino = scanner.next().toUpperCase();
+                // Solicita e valida a moeda de destino
+                String moedaDestino = obterMoedaValida("Digite a moeda para conversão (ex: BRL, EUR, JPY): ");
 
                 // Validação do valor a ser convertido
                 double valor = obterValorValido();
@@ -45,11 +44,10 @@ public class Menu {
                     // Realiza o cálculo
                     double valorConvertido = conversor.converter(valor, taxa);
 
-                    // Formatação do valor convertido
+                    // Formatação e exibição
                     String entradaFormatada = formatarMoeda(valor, moedaBase);
                     String resultadoFormatado = formatarMoeda(valorConvertido, moedaDestino);
 
-                    // Exibe o resultado com formatação de moeda
                     System.out.printf("Resultado: %s equivale a %s%n", entradaFormatada, resultadoFormatado);
 
                     // Registra a conversão no log
@@ -58,9 +56,6 @@ public class Menu {
                     System.out.println("Erro: Moeda de destino inválida ou não suportada.");
                 }
 
-            } catch (InputMismatchException e) {
-                System.out.println("Erro: Valor inválido. Certifique-se de inserir um número.");
-                scanner.next();  // Limpa a entrada inválida
             } catch (Exception e) {
                 System.out.println("Erro ao conectar com a API: " + e.getMessage());
             }
@@ -98,10 +93,32 @@ public class Menu {
                 }
             } else {
                 System.out.println("Entrada inválida! Por favor, insira apenas números.\n");
-                scanner.next();  // Limpa a entrada inválida para evitar loop infinito
+                scanner.next();
             }
         }
         return valor;
+    }
+
+    /**
+     * Solicita ao usuário uma moeda e valida se ela está na lista de moedas suportadas.
+     *
+     * @param mensagem Mensagem exibida para solicitar a moeda.
+     * @return Moeda válida inserida pelo usuário.
+     */
+    private String obterMoedaValida(String mensagem) {
+        String moeda;
+
+        while (true) {
+            System.out.print(mensagem);
+            moeda = scanner.next().toUpperCase();
+
+            if (moedasSuportadas.contains(moeda)) {
+                break;
+            } else {
+                System.out.println("Moeda inválida! Moedas suportadas: " + moedasSuportadas + "\n");
+            }
+        }
+        return moeda;
     }
 
     /**
@@ -130,7 +147,7 @@ public class Menu {
             case "EUR" -> Locale.FRANCE;
             case "JPY" -> Locale.JAPAN;
             case "GBP" -> Locale.UK;
-            default -> Locale.US;  // Padrão para USD se a moeda não for reconhecida
+            default -> Locale.US;
         };
     }
 }
