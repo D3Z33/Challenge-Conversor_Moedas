@@ -5,76 +5,99 @@ import br.com.alura.challenge.conversor.moedas.servico.Conversor;
 import br.com.alura.challenge.conversor.moedas.modelo.ExchangeRateResponse;
 import br.com.alura.challenge.conversor.moedas.utils.Logger;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Menu {
 
-    // Instâncias das classes necessárias para a execução do programa
-    private final ApiClient apiClient = new ApiClient();  // Cliente HTTP para comunicação com a API
-    private final Conversor conversor = new Conversor();  // Lógica de conversão de valores
-    private final Logger logger = new Logger();           // Registra as conversões em arquivo
-    private final Scanner scanner = new Scanner(System.in); // Lê entradas do usuário pelo console
+    private final ApiClient apiClient = new ApiClient();
+    private final Conversor conversor = new Conversor();
+    private final Logger logger = new Logger();
+    private final Scanner scanner = new Scanner(System.in);
 
-    /**
-     * Exibe o menu do conversor de moedas e permite múltiplas conversões em loop.
-     */
     public void exibirMenu() {
-        boolean continuar = true;  // Variável de controle para o loop de conversões
+        boolean continuar = true;
 
-        // Loop principal para permitir múltiplas conversões
         while (continuar) {
-            System.out.println("\nBem-vindo ao Conversor de Moedas!");
-
-            // Solicita a moeda base (de origem)
-            System.out.print("Digite a moeda base (ex: USD, EUR, BRL): ");
-            String moedaBase = scanner.next().toUpperCase();
-
-            // Solicita a moeda de destino (para conversão)
-            System.out.print("Digite a moeda para conversão (ex: BRL, EUR, JPY): ");
-            String moedaDestino = scanner.next().toUpperCase();
-
-            // Solicita o valor a ser convertido
-            System.out.print("Digite o valor a ser convertido: ");
-            double valor = scanner.nextDouble();
-
             try {
-                // Faz a requisição à API para obter as taxas de câmbio
+                System.out.println("\nBem-vindo ao Conversor de Moedas!");
+
+                // Validação da moeda base
+                System.out.print("Digite a moeda base (ex: USD, EUR, BRL): ");
+                String moedaBase = scanner.next().toUpperCase();
+
+                // Validação da moeda de destino
+                System.out.print("Digite a moeda para conversão (ex: BRL, EUR, JPY): ");
+                String moedaDestino = scanner.next().toUpperCase();
+
+                // Validação do valor a ser convertido
+                double valor = obterValorValido();
+
+                // Requisição à API
                 ExchangeRateResponse resposta = apiClient.obterTaxasCambio(moedaBase);
 
-                // Obtém a taxa de câmbio para a moeda de destino
+                // Verifica se a moeda de destino existe na resposta
                 Double taxa = resposta.getConversion_rates().get(moedaDestino);
 
                 if (taxa != null) {
-                    // Realiza o cálculo da conversão
+                    // Realiza o cálculo
                     double valorConvertido = conversor.converter(valor, taxa);
 
-                    // Formata os resultados para exibição
+                    // Formatação e exibição
                     String entrada = String.format("%.2f %s", valor, moedaBase);
                     String resultado = String.format("%.2f %s", valorConvertido, moedaDestino);
 
-                    // Exibe o resultado no console
                     System.out.printf("Resultado: %s equivale a %s%n", entrada, resultado);
 
-                    // Registra a conversão no arquivo de log
+                    // Registra a conversão no log
                     logger.registrar(entrada, resultado);
                 } else {
-                    // Exibe uma mensagem caso a moeda de destino não seja encontrada
-                    System.out.println("Moeda de destino não encontrada.");
+                    System.out.println("Erro: Moeda de destino inválida ou não suportada.");
                 }
 
+            } catch (InputMismatchException e) {
+                System.out.println("Erro: Valor inválido. Certifique-se de inserir um número.");
+                scanner.next();  // Limpa a entrada inválida
             } catch (Exception e) {
-                // Trata exceções de erro na conexão com a API
                 System.out.println("Erro ao conectar com a API: " + e.getMessage());
             }
 
-            // Pergunta ao usuário se deseja realizar outra conversão
+            // Pergunta ao usuário se deseja continuar
             System.out.print("\nDeseja realizar outra conversão? (s/n): ");
-            continuar = scanner.next().equalsIgnoreCase("s");  // Continua se o usuário digitar 's'
+            continuar = scanner.next().equalsIgnoreCase("s");
 
-            // Mensagem de encerramento do programa
             if (!continuar) {
                 System.out.println("Obrigado por utilizar o Conversor de Moedas!");
             }
         }
+    }
+
+    /**
+     * Solicita e valida um valor a ser convertido, garantindo que seja um número positivo maior que zero.
+     *
+     * - Se o valor inserido for negativo ou zero, o usuário será orientado a tentar novamente.
+     * - Se a entrada não for um número (ex: letras ou símbolos), uma mensagem de erro será exibida,
+     * e o programa continuará solicitando até que um valor válido seja inserido.
+     *
+     * @return Valor positivo maior que zero inserido pelo usuário.
+     */
+    private double obterValorValido() {
+        double valor = -1;
+
+        while (valor <= 0) {
+            System.out.print("Digite o valor a ser convertido (deve ser maior que zero): ");
+
+            if (scanner.hasNextDouble()) {
+                valor = scanner.nextDouble();
+
+                if (valor <= 0) {
+                    System.out.println("O valor precisa ser maior que zero. Tente novamente.\n");
+                }
+            } else {
+                System.out.println("Entrada inválida! Por favor, insira apenas números.\n");
+                scanner.next();  // Limpa a entrada inválida para evitar loop infinito
+            }
+        }
+        return valor;
     }
 }
