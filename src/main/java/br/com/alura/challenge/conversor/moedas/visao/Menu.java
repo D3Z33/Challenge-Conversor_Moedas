@@ -6,6 +6,8 @@ import br.com.alura.challenge.conversor.moedas.modelo.ExchangeRateResponse;
 import br.com.alura.challenge.conversor.moedas.utils.Logger;
 
 import java.text.NumberFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class Menu {
@@ -23,7 +25,9 @@ public class Menu {
 
         while (continuar) {
             try {
-                System.out.println("\nBem-vindo ao Conversor de Moedas!");
+                System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                System.out.println("          Conversor de Moedas        ");
+                System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
                 // Solicita e valida a moeda base
                 String moedaBase = obterMoedaValida("Digite a moeda base (ex: USD, EUR, BRL): ");
@@ -48,8 +52,23 @@ public class Menu {
                     String entradaFormatada = formatarMoeda(valor, moedaBase);
                     String resultadoFormatado = formatarMoeda(valorConvertido, moedaDestino);
 
-                    // Registra a conversão no log
+                    // Exibe resultado no console com timestamp
+                    String resultadoFinal = String.format(
+                            "[%s] %s ➝ %s",
+                            LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")),
+                            entradaFormatada, resultadoFormatado
+                    );
+                    System.out.println("Resultado: " + resultadoFinal);
+
+                    // Registra no log
                     logger.registrar(entradaFormatada, resultadoFormatado);
+
+                    // **Adição da conversão reversa após exibir o resultado principal**
+                    System.out.print("\nDeseja realizar a conversão inversa? (s/n): ");
+                    if (scanner.next().equalsIgnoreCase("s")) {
+                        realizarConversaoReversa(moedaDestino, moedaBase, valorConvertido);
+                    }
+
                 } else {
                     System.out.println("Erro: Moeda de destino inválida ou não suportada.");
                 }
@@ -58,13 +77,44 @@ public class Menu {
                 System.out.println("Erro ao conectar com a API: " + e.getMessage());
             }
 
-            // Pergunta ao usuário se deseja continuar
+            // Pergunta ao usuário se deseja continuar com outra conversão
             System.out.print("\nDeseja realizar outra conversão? (s/n): ");
             continuar = scanner.next().equalsIgnoreCase("s");
 
+            // Mensagem de despedida ao finalizar
             if (!continuar) {
-                System.out.println("Obrigado por utilizar o Conversor de Moedas!");
+                System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                System.out.println("   Obrigado por utilizar o Conversor de Moedas!");
+                System.out.println("            Tenha um ótimo dia! 🚀");
+                System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
             }
+        }
+    }
+
+    /**
+     * Realiza a conversão reversa utilizando o valor convertido anteriormente.
+     *
+     * @param moedaBase Moeda de destino da conversão original (agora será a moeda base).
+     * @param moedaDestino Moeda base da conversão original (agora será a moeda de destino).
+     * @param valor Valor já convertido, a ser usado como base para a conversão reversa.
+     */
+    private void realizarConversaoReversa(String moedaBase, String moedaDestino, double valor) {
+        try {
+            ExchangeRateResponse resposta = apiClient.obterTaxasCambio(moedaBase);
+            Double taxaReversa = resposta.getConversion_rates().get(moedaDestino);
+
+            if (taxaReversa != null) {
+                double valorReverso = conversor.converter(valor, taxaReversa);
+                String entradaFormatada = formatarMoeda(valor, moedaBase);
+                String resultadoFormatado = formatarMoeda(valorReverso, moedaDestino);
+
+                System.out.printf("Conversão Reversa: %s equivale a %s%n", entradaFormatada, resultadoFormatado);
+                logger.registrar(entradaFormatada, resultadoFormatado);
+            } else {
+                System.out.println("Erro: Moeda de destino não encontrada na conversão reversa.");
+            }
+        } catch (Exception e) {
+            System.out.println("Erro ao conectar com a API para conversão reversa: " + e.getMessage());
         }
     }
 
