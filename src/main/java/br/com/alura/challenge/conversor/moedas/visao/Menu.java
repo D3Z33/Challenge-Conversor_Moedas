@@ -73,27 +73,36 @@ public class Menu {
     /**
      * Solicita e valida um valor a ser convertido, garantindo que seja um número positivo maior que zero.
      *
-     * - Se o valor inserido for negativo ou zero, o usuário será orientado a tentar novamente.
-     * - Se a entrada não for um número (ex: letras ou símbolos), uma mensagem de erro será exibida,
-     * e o programa continuará solicitando até que um valor válido seja inserido.
+     * - A primeira solicitação será simples, sem a mensagem de restrição.
+     * - Se o valor inserido for negativo ou zero, a mensagem com a restrição aparecerá.
+     * - Se a entrada não for um número (ex: letras ou símbolos), o usuário será orientado a inserir apenas números.
      *
      * @return Valor positivo maior que zero inserido pelo usuário.
      */
     private double obterValorValido() {
         double valor = -1;
+        boolean primeiraTentativa = true;
 
         while (valor <= 0) {
-            System.out.print("Digite o valor a ser convertido (deve ser maior que zero): ");
+            // Mensagem muda após erro
+            if (primeiraTentativa) {
+                System.out.print("Digite o valor a ser convertido: ");
+                primeiraTentativa = false;
+            } else {
+                System.out.print("Digite o valor a ser convertido (deve ser maior que zero): ");
+            }
 
+            // Verifica se a entrada é um número
             if (scanner.hasNextDouble()) {
                 valor = scanner.nextDouble();
 
+                // Valida se o valor é maior que zero
                 if (valor <= 0) {
                     System.out.println("O valor precisa ser maior que zero. Tente novamente.\n");
                 }
             } else {
                 System.out.println("Entrada inválida! Por favor, insira apenas números.\n");
-                scanner.next();
+                scanner.next();  // Limpa a entrada inválida
             }
         }
         return valor;
