@@ -52,22 +52,23 @@ public class Menu {
                     String entradaFormatada = formatarMoeda(valor, moedaBase);
                     String resultadoFormatado = formatarMoeda(valorConvertido, moedaDestino);
 
-                    // Exibe resultado no console com timestamp
-                    String resultadoFinal = String.format(
-                            "[%s] %s ➝ %s",
-                            LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")),
-                            entradaFormatada, resultadoFormatado
-                    );
-                    System.out.println("Resultado: " + resultadoFinal);
-
                     // Registra no log
                     logger.registrar(entradaFormatada, resultadoFormatado);
 
-                    // **Adição da conversão reversa após exibir o resultado principal**
-                    System.out.print("\nDeseja realizar a conversão inversa? (s/n): ");
-                    if (scanner.next().equalsIgnoreCase("s")) {
+                    // Conversão inversa após exibir o resultado principal
+                    String respostaInversa;
+                    do {
+                        System.out.print("\nDeseja realizar a conversão inversa? (s/n): ");
+                        respostaInversa = scanner.next().toLowerCase();
+                        if (!respostaInversa.equals("s") && !respostaInversa.equals("n")) {
+                            System.out.println("Entrada inválida! Por favor, digite 's' para sim ou 'n' para não.");
+                        }
+                    } while (!respostaInversa.equals("s") && !respostaInversa.equals("n"));
+
+                    if (respostaInversa.equals("s")) {
                         realizarConversaoReversa(moedaDestino, moedaBase, valorConvertido);
                     }
+
 
                 } else {
                     System.out.println("Erro: Moeda de destino inválida ou não suportada.");
@@ -78,8 +79,16 @@ public class Menu {
             }
 
             // Pergunta ao usuário se deseja continuar com outra conversão
+        String resposta;
+        do {
             System.out.print("\nDeseja realizar outra conversão? (s/n): ");
-            continuar = scanner.next().equalsIgnoreCase("s");
+            resposta = scanner.next().toLowerCase();
+            if (!resposta.equals("s") && !resposta.equals("n")) {
+                System.out.println("Entrada inválida! Por favor, digite 's' para sim ou 'n' para não.");
+            }
+        } while (!resposta.equals("s") && !resposta.equals("n"));
+
+            continuar = resposta.equals("s");
 
             // Mensagem de despedida ao finalizar
             if (!continuar) {
@@ -92,7 +101,50 @@ public class Menu {
     }
 
     /**
-     * Realiza a conversão reversa utilizando o valor convertido anteriormente.
+     * Converte um valor para múltiplas moedas com base nas taxas de câmbio obtidas.
+     *
+     * @param moedasDestino Moedas para as quais o valor será convertido (separadas por vírgula).
+     * @param resposta Dados da API contendo as taxas de câmbio.
+     * @param valor Valor a ser convertido.
+     * @param moedaBase Moeda de origem.
+     */
+    private void converterMultiplasMoedas(String moedasDestino, ExchangeRateResponse resposta, double valor, String moedaBase) {
+        // Divide a entrada em uma lista de moedas
+        String[] listaMoedas = moedasDestino.split(",");
+        boolean algumaConversaoBemSucedida = false;
+
+        for (String moeda : listaMoedas) {
+            if (resposta.getConversion_rates().containsKey(moeda)) {
+                // Realiza a conversão
+                double taxa = resposta.getConversion_rates().get(moeda);
+                double valorConvertido = conversor.converter(valor, taxa);
+
+                // Formata e exibe o resultado
+                String entradaFormatada = formatarMoeda(valor, moedaBase);
+                String resultadoFormatado = formatarMoeda(valorConvertido, moeda);
+
+                String resultadoFinal = String.format(
+                        "[%s] %s ➝ %s",
+                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")),
+                        entradaFormatada, resultadoFormatado
+                );
+                System.out.println("Resultado: " + resultadoFinal);
+                logger.registrar(entradaFormatada, resultadoFormatado);
+
+                algumaConversaoBemSucedida = true;
+            } else {
+                // Moeda inválida
+                System.out.printf("Aviso: A moeda '%s' não é suportada e foi ignorada.%n", moeda);
+            }
+        }
+
+        if (!algumaConversaoBemSucedida) {
+            System.out.println("Nenhuma conversão foi realizada. Verifique as moedas inseridas.");
+        }
+    }
+
+    /**
+     * Realiza a conversão inversa utilizando o valor convertido anteriormente.
      *
      * @param moedaBase Moeda de destino da conversão original (agora será a moeda base).
      * @param moedaDestino Moeda base da conversão original (agora será a moeda de destino).
@@ -108,15 +160,17 @@ public class Menu {
                 String entradaFormatada = formatarMoeda(valor, moedaBase);
                 String resultadoFormatado = formatarMoeda(valorReverso, moedaDestino);
 
-                System.out.printf("Conversão Reversa: %s equivale a %s%n", entradaFormatada, resultadoFormatado);
+                System.out.printf("Conversão Inversa: %s equivale a %s%n", entradaFormatada, resultadoFormatado);
                 logger.registrar(entradaFormatada, resultadoFormatado);
             } else {
-                System.out.println("Erro: Moeda de destino não encontrada na conversão reversa.");
+                System.out.println("Erro: Moeda de destino não encontrada na conversão inversa.");
             }
         } catch (Exception e) {
-            System.out.println("Erro ao conectar com a API para conversão reversa: " + e.getMessage());
+            System.out.println("Erro ao conectar com a API para conversão inversa: " + e.getMessage());
         }
     }
+
+
 
     /**
      * Solicita e valida um valor a ser convertido, garantindo que seja um número positivo maior que zero.
